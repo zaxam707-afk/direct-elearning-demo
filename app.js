@@ -335,6 +335,8 @@ const MODULES_DATA = {
    ========================================================================== */
 
 let currentUser = {
+    loginId: "",
+    password: "",
     name: "",
     company: "",
     progress: {}, // { "1": 100, "2": 0, ... }
@@ -351,6 +353,9 @@ let currentModule = 1;
 let currentSlideIndex = 0;
 let currentQuizIndex = 0;
 let currentQuizCorrectAnswers = 0;
+
+// Auth tab tracking: 'login' or 'register'
+let currentAuthTab = "login";
 
 // Chatbot Sim State
 let botStep = 0;
@@ -377,13 +382,13 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function initDatabase() {
-    // Default Mock Users
+    // Default Mock Users with pre-set Login ID & PW for testing
     const mockUsers = [
-        { name: "佐藤 一郎", company: "竹中工務店", progress: {1:100, 2:100, 3:100, 4:100}, scores: {1:3, 2:3, 3:3, 4:3}, examPassed: true, examScore: 100, visits: 14, lastActive: "2026-05-26 10:30" },
-        { name: "鈴木 二郎", company: "大林組", progress: {1:100, 2:100, 3:100, 4:0}, scores: {1:3, 2:2, 3:3}, examPassed: false, examScore: 0, visits: 8, lastActive: "2026-05-25 16:45" },
-        { name: "高橋 三郎", company: "清水建設", progress: {1:100, 2:0, 3:0, 4:0}, scores: {1:2}, examPassed: false, examScore: 0, visits: 3, lastActive: "2026-05-24 11:20" },
-        { name: "渡辺 四郎", company: "鹿島建設", progress: {1:100, 2:100, 3:100, 4:100}, scores: {1:3, 2:3, 3:2, 4:2}, examPassed: false, examScore: 40, visits: 12, lastActive: "2026-05-26 09:15" },
-        { name: "中村 美咲", company: "前田建設工業", progress: {1:100, 2:100, 3:100, 4:100}, scores: {1:3, 2:3, 3:3, 4:3}, examPassed: true, examScore: 80, visits: 9, lastActive: "2026-05-26 14:02" }
+        { loginId: "sato", password: "sato123", name: "佐藤 一郎", company: "竹中工務店", progress: {1:100, 2:100, 3:100, 4:100}, scores: {1:3, 2:3, 3:3, 4:3}, examPassed: true, examScore: 100, visits: 14, lastActive: "2026-05-26 10:30" },
+        { loginId: "suzuki", password: "suzuki123", name: "鈴木 二郎", company: "大林組", progress: {1:100, 2:100, 3:100, 4:0}, scores: {1:3, 2:2, 3:3}, examPassed: false, examScore: 0, visits: 8, lastActive: "2026-05-25 16:45" },
+        { loginId: "takahashi", password: "takahashi123", name: "高橋 三郎", company: "清水建設", progress: {1:100, 2:0, 3:0, 4:0}, scores: {1:2}, examPassed: false, examScore: 0, visits: 3, lastActive: "2026-05-24 11:20" },
+        { loginId: "watanabe", password: "watanabe123", name: "渡辺 四郎", company: "鹿島建設", progress: {1:100, 2:100, 3:100, 4:100}, scores: {1:3, 2:3, 3:2, 4:2}, examPassed: false, examScore: 40, visits: 12, lastActive: "2026-05-26 09:15" },
+        { loginId: "nakamura", password: "nakamura123", name: "中村 美咲", company: "前田建設工業", progress: {1:100, 2:100, 3:100, 4:100}, scores: {1:3, 2:3, 3:3, 4:3}, examPassed: true, examScore: 80, visits: 9, lastActive: "2026-05-26 14:02" }
     ];
 
     const storedUsers = localStorage.getItem("direct_elearning_users");
@@ -398,60 +403,167 @@ function initDatabase() {
     const sessionUser = sessionStorage.getItem("direct_current_user");
     if (sessionUser) {
         currentUser = JSON.parse(sessionUser);
+        document.getElementById("btn-logout").classList.remove("hidden");
         updateUserDashboard();
         showScreen("screen-dashboard");
     } else {
+        document.getElementById("btn-logout").classList.add("hidden");
         showScreen("screen-welcome");
     }
     
     updateAdminDashboard();
 }
 
+function switchLoginTab(tab) {
+    currentAuthTab = tab;
+    const tabLogin = document.getElementById("tab-login");
+    const tabRegister = document.getElementById("tab-register");
+    const registerFields = document.getElementById("register-fields");
+    const screenTitle = document.getElementById("login-screen-title");
+    const btnSubmit = document.getElementById("btn-submit-login");
+
+    if (tab === "login") {
+        tabLogin.className = "btn-primary btn-sm w-48";
+        tabLogin.style.background = "";
+        tabRegister.className = "btn-secondary btn-sm w-48";
+        tabRegister.style.background = "transparent";
+        tabRegister.style.border = "none";
+        tabRegister.style.boxShadow = "none";
+
+        registerFields.classList.add("hidden");
+        screenTitle.textContent = "受講者ログイン";
+        btnSubmit.querySelector("span").textContent = "ログインする";
+    } else {
+        tabRegister.className = "btn-primary btn-sm w-48";
+        tabRegister.style.background = "";
+        tabLogin.className = "btn-secondary btn-sm w-48";
+        tabLogin.style.background = "transparent";
+        tabLogin.style.border = "none";
+        tabLogin.style.boxShadow = "none";
+
+        registerFields.classList.remove("hidden");
+        screenTitle.textContent = "受講者アカウント作成";
+        btnSubmit.querySelector("span").textContent = "アカウントを作成する";
+    }
+}
+
 function setupEventListeners() {
     // Welcome Screen
     document.getElementById("btn-start-course").addEventListener("click", () => {
         showScreen("screen-login");
+        switchLoginTab("login");
     });
 
-    // Login Screen
+    // Login Tabs Event Listeners
+    document.getElementById("tab-login").addEventListener("click", () => switchLoginTab("login"));
+    document.getElementById("tab-register").addEventListener("click", () => switchLoginTab("register"));
+
+    // Login / Registration Submission
     document.getElementById("btn-submit-login").addEventListener("click", () => {
-        const nameInput = document.getElementById("username").value.trim();
-        const companyInput = document.getElementById("usercompany").value.trim();
-        if (!nameInput) {
-            alert("お名前を入力してください。");
+        const loginIdInput = document.getElementById("login-id").value.trim();
+        const loginPwInput = document.getElementById("login-pw").value.trim();
+
+        if (!loginIdInput || !loginPwInput) {
+            alert("ログインIDとパスワードを入力してください。");
             return;
         }
 
-        // Setup user
-        currentUser.name = nameInput;
-        currentUser.company = companyInput || "個人受講";
-        currentUser.progress = { "1": 0, "2": 0, "3": 0, "4": 0 };
-        currentUser.scores = {};
-        currentUser.examPassed = false;
-        currentUser.examScore = 0;
-        currentUser.visits = 1;
-        currentUser.lastActive = getFormattedDate();
+        if (currentAuthTab === "login") {
+            // Login verification
+            const foundUser = appUsers.find(u => u.loginId === loginIdInput);
+            if (!foundUser || foundUser.password !== loginPwInput) {
+                alert("ログインIDまたはパスワードが正しくありません。");
+                return;
+            }
 
-        // Check if user already exists in db
-        const existingIdx = appUsers.findIndex(u => u.name === currentUser.name && u.company === currentUser.company);
-        if (existingIdx !== -1) {
-            // Load existing progress & increment visits
-            currentUser = appUsers[existingIdx];
-            currentUser.visits += 1;
+            currentUser = foundUser;
+            currentUser.visits = (currentUser.visits || 0) + 1;
             currentUser.lastActive = getFormattedDate();
-            appUsers[existingIdx] = currentUser;
-        } else {
-            // Add new user
-            appUsers.push(currentUser);
-        }
 
-        saveUserData();
-        updateUserDashboard();
-        updateAdminDashboard();
-        showScreen("screen-dashboard");
+            // Sync inside appUsers list
+            const idx = appUsers.findIndex(u => u.loginId === currentUser.loginId);
+            if (idx !== -1) {
+                appUsers[idx] = currentUser;
+            }
+
+            saveUserData();
+            document.getElementById("btn-logout").classList.remove("hidden");
+            updateUserDashboard();
+            updateAdminDashboard();
+            showScreen("screen-dashboard");
+        } else {
+            // New user registration
+            const nameInput = document.getElementById("username").value.trim();
+            const companyInput = document.getElementById("usercompany").value.trim();
+
+            if (!nameInput) {
+                alert("お名前を入力してください。");
+                return;
+            }
+
+            // Check duplicate login IDs
+            const duplicate = appUsers.find(u => u.loginId === loginIdInput);
+            if (duplicate) {
+                alert("このログインIDはすでに登録されています。別のIDを指定してください。");
+                return;
+            }
+
+            currentUser = {
+                loginId: loginIdInput,
+                password: loginPwInput,
+                name: nameInput,
+                company: companyInput || "個人受講",
+                progress: { "1": 0, "2": 0, "3": 0, "4": 0 },
+                scores: {},
+                examPassed: false,
+                examScore: 0,
+                visits: 1,
+                lastActive: getFormattedDate()
+            };
+
+            appUsers.push(currentUser);
+            saveUserData();
+            document.getElementById("btn-logout").classList.remove("hidden");
+            updateUserDashboard();
+            updateAdminDashboard();
+            showScreen("screen-dashboard");
+        }
     });
 
-    // Admin Toggle Button
+    // Logout Action
+    document.getElementById("btn-logout").addEventListener("click", () => {
+        sessionStorage.removeItem("direct_current_user");
+        currentUser = {
+            loginId: "",
+            password: "",
+            name: "",
+            company: "",
+            progress: {},
+            scores: {},
+            examPassed: false,
+            examScore: 0,
+            visits: 1,
+            lastActive: ""
+        };
+        document.getElementById("btn-logout").classList.add("hidden");
+
+        // Clear input fields
+        document.getElementById("login-id").value = "";
+        document.getElementById("login-pw").value = "";
+        document.getElementById("username").value = "";
+        document.getElementById("usercompany").value = "";
+
+        // Reset width class if returning from admin wide view
+        const layout = document.querySelector(".app-layout");
+        if (layout.classList.contains("layout-wide")) {
+            layout.classList.remove("layout-wide");
+            document.getElementById("btn-toggle-admin").querySelector(".btn-text").textContent = "管理者画面";
+        }
+
+        showScreen("screen-welcome");
+    });
+
+    // Admin Toggle Button (with Modal verification gate)
     document.getElementById("btn-toggle-admin").addEventListener("click", () => {
         const layout = document.querySelector(".app-layout");
         const btn = document.getElementById("btn-toggle-admin");
@@ -461,17 +573,34 @@ function setupEventListeners() {
             // Switch back to student view
             layout.classList.remove("layout-wide");
             btnText.textContent = "管理者画面";
-            // Return to dashboard if logged in, else welcome
-            if (currentUser.name) {
+            if (currentUser.loginId) {
                 showScreen("screen-dashboard");
             } else {
                 showScreen("screen-welcome");
             }
         } else {
-            // Switch to admin view
+            // Open admin gate popup
+            document.getElementById("admin-id").value = "";
+            document.getElementById("admin-pw").value = "";
+            document.getElementById("modal-admin-login").classList.remove("hidden");
+        }
+    });
+
+    // Admin login submit verification
+    document.getElementById("btn-submit-admin-login").addEventListener("click", () => {
+        const adminId = document.getElementById("admin-id").value.trim();
+        const adminPw = document.getElementById("admin-pw").value.trim();
+
+        if (adminId === "admin" && adminPw === "direct123") {
+            document.getElementById("modal-admin-login").classList.add("hidden");
+            
+            const layout = document.querySelector(".app-layout");
             layout.classList.add("layout-wide");
-            btnText.textContent = "受講者画面";
+            document.getElementById("btn-toggle-admin").querySelector(".btn-text").textContent = "受講者画面";
             showScreen("screen-admin");
+            updateAdminDashboard();
+        } else {
+            alert("管理者IDまたはパスワードが正しくありません。");
         }
     });
 
@@ -480,7 +609,7 @@ function setupEventListeners() {
         if (confirm("すべての受講データを初期化します。よろしいですか？")) {
             localStorage.removeItem("direct_elearning_users");
             sessionStorage.removeItem("direct_current_user");
-            currentUser = { name: "", company: "", progress: {}, scores: {}, examPassed: false, examScore: 0, visits: 1, lastActive: "" };
+            currentUser = { loginId: "", password: "", name: "", company: "", progress: {}, scores: {}, examPassed: false, examScore: 0, visits: 1, lastActive: "" };
             initDatabase();
             showScreen("screen-welcome");
             const layout = document.querySelector(".app-layout");
@@ -497,6 +626,9 @@ function setupEventListeners() {
         const randomName = lastNames[Math.floor(Math.random() * lastNames.length)] + " " + firstNames[Math.floor(Math.random() * firstNames.length)];
         const randomCompany = companies[Math.floor(Math.random() * companies.length)];
         
+        // Random simple alphanumeric loginId
+        const randId = "user_" + Math.random().toString(36).substring(2, 7);
+
         const randProgressVal = Math.floor(Math.random() * 5) * 25; // 0, 25, 50, 75, 100
         const progress = { "1": 100 };
         progress["2"] = randProgressVal >= 50 ? 100 : 0;
@@ -512,6 +644,8 @@ function setupEventListeners() {
         const examScore = isPassed ? (Math.random() > 0.5 ? 100 : 80) : 0;
 
         const newUser = {
+            loginId: randId,
+            password: "pw" + randId,
             name: randomName,
             company: randomCompany,
             progress: progress,
@@ -524,6 +658,11 @@ function setupEventListeners() {
 
         appUsers.push(newUser);
         localStorage.setItem("direct_elearning_users", JSON.stringify(appUsers));
+        updateAdminDashboard();
+    });
+
+    // Organization Filter Dropdown change event
+    document.getElementById("admin-org-filter").addEventListener("change", () => {
         updateAdminDashboard();
     });
 
@@ -571,7 +710,7 @@ function saveUserData() {
     sessionStorage.setItem("direct_current_user", JSON.stringify(currentUser));
     
     // Sync with appUsers array
-    const idx = appUsers.findIndex(u => u.name === currentUser.name && u.company === currentUser.company);
+    const idx = appUsers.findIndex(u => u.loginId === currentUser.loginId);
     if (idx !== -1) {
         appUsers[idx] = currentUser;
     } else {
@@ -1341,13 +1480,161 @@ function printCertificate() {
    Admin Analytics Dashboard Panel
    ========================================================================== */
 
-function updateAdminDashboard() {
-    // Recalculate KPIs
-    const usersCount = appUsers.length;
+function closeAdminModal() {
+    document.getElementById("modal-admin-login").classList.add("hidden");
+}
+
+function openEditUserModal(index) {
+    const user = appUsers[index];
+    if (!user) return;
+    document.getElementById("edit-user-index").value = index;
+    document.getElementById("edit-username").value = user.name;
+    document.getElementById("edit-usercompany").value = user.company;
+    document.getElementById("modal-edit-user").classList.remove("hidden");
+}
+
+function closeEditUserModal() {
+    document.getElementById("modal-edit-user").classList.add("hidden");
+}
+
+// Bind Save action in User Edit Modal
+document.getElementById("btn-save-user-edit").addEventListener("click", () => {
+    const index = parseInt(document.getElementById("edit-user-index").value, 10);
+    const newName = document.getElementById("edit-username").value.trim();
+    const newCompany = document.getElementById("edit-usercompany").value.trim();
+
+    if (!newName) {
+        alert("受講者名を入力してください。");
+        return;
+    }
+
+    if (appUsers[index]) {
+        const user = appUsers[index];
+        user.name = newName;
+        user.company = newCompany || "個人受講";
+
+        // Sync with currently logged-in user if applicable
+        if (currentUser && currentUser.loginId === user.loginId) {
+            currentUser.name = user.name;
+            currentUser.company = user.company;
+            sessionStorage.setItem("direct_current_user", JSON.stringify(currentUser));
+        }
+
+        localStorage.setItem("direct_elearning_users", JSON.stringify(appUsers));
+        closeEditUserModal();
+        
+        updateAdminDashboard();
+        updateUserDashboard();
+    }
+});
+
+function updateOrgFilterDropdown() {
+    const filter = document.getElementById("admin-org-filter");
+    if (!filter) return;
     
-    // Calculate Average Progress
-    let totalProgress = 0;
+    // Remember selection
+    const selectedValue = filter.value || "all";
+    
+    // Extract unique organization names
+    const orgs = [...new Set(appUsers.map(u => u.company).filter(Boolean))];
+    
+    // Clear and build options
+    filter.innerHTML = '<option value="all">すべての所属組織 (全体)</option>';
+    orgs.forEach(org => {
+        const option = document.createElement("option");
+        option.value = org;
+        option.textContent = org;
+        filter.appendChild(option);
+    });
+    
+    // Restore selection if still exists
+    if (orgs.includes(selectedValue)) {
+        filter.value = selectedValue;
+    } else {
+        filter.value = "all";
+    }
+}
+
+function renderOrgStatistics() {
+    const orgTableBody = document.getElementById("admin-org-table-body");
+    if (!orgTableBody) return;
+    
+    orgTableBody.innerHTML = "";
+    
+    // Group users by organization
+    const orgGroups = {};
     appUsers.forEach(u => {
+        const org = u.company || "個人受講";
+        if (!orgGroups[org]) {
+            orgGroups[org] = {
+                users: [],
+                totalProgress: 0,
+                passes: 0,
+                visits: 0
+            };
+        }
+        orgGroups[org].users.push(u);
+        
+        // Progress percentage calculation
+        let completed = 0;
+        for (let i = 1; i <= 4; i++) {
+            if (u.progress[i] === 100) completed++;
+        }
+        orgGroups[org].totalProgress += (completed * 25);
+        
+        // Test Passed
+        if (u.examPassed) {
+            orgGroups[org].passes++;
+        }
+        
+        // Total visits
+        orgGroups[org].visits += (u.visits || 1);
+    });
+    
+    // Populate organization grouped statistics table rows
+    Object.keys(orgGroups).forEach(orgName => {
+        const data = orgGroups[orgName];
+        const count = data.users.length;
+        const avgProg = count > 0 ? Math.round(data.totalProgress / count) : 0;
+        const passRate = count > 0 ? Math.round((data.passes / count) * 100) : 0;
+        
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+            <td><strong>${orgName}</strong></td>
+            <td class="text-center font-bold" style="font-family: var(--font-outfit);">${count} 名</td>
+            <td class="text-center">
+                <div class="flex-row gap-2 justify-center">
+                    <div class="progress-bar-outer" style="width: 50px;">
+                        <div class="progress-bar-inner" style="width: ${avgProg}%"></div>
+                    </div>
+                    <span>${avgProg}%</span>
+                </div>
+            </td>
+            <td class="text-center font-bold text-success" style="font-family: var(--font-outfit);">${passRate}%</td>
+            <td class="text-center font-bold" style="font-family: var(--font-outfit);">${data.visits} 回</td>
+        `;
+        orgTableBody.appendChild(tr);
+    });
+}
+
+function updateAdminDashboard() {
+    // Sync filters & statistics tables first
+    updateOrgFilterDropdown();
+    renderOrgStatistics();
+    
+    const filterOrg = document.getElementById("admin-org-filter").value;
+    
+    // Filter users list based on selection
+    let filteredUsers = appUsers;
+    if (filterOrg !== "all") {
+        filteredUsers = appUsers.filter(u => u.company === filterOrg);
+    }
+    
+    // Calculate filtered KPIs
+    const usersCount = filteredUsers.length;
+    
+    let totalProgress = 0;
+    filteredUsers.forEach(u => {
         let completed = 0;
         for (let i = 1; i <= 4; i++) {
             if (u.progress[i] === 100) completed++;
@@ -1356,13 +1643,10 @@ function updateAdminDashboard() {
     });
     const avgProgress = usersCount > 0 ? Math.round(totalProgress / usersCount) : 0;
     
-    // Calculate Pass Rate
     let passes = 0;
     let fails = 0;
     let untested = 0;
-    appUsers.forEach(u => {
-        // If progress is 100% and they took the test
-        const completed = Object.values(u.progress).filter(p => p === 100).length === 4;
+    filteredUsers.forEach(u => {
         if (u.examPassed) {
             passes++;
         } else if (u.examScore > 0 && u.examScore < 80) {
@@ -1373,15 +1657,16 @@ function updateAdminDashboard() {
     });
     const passRate = usersCount > 0 ? Math.round((passes / usersCount) * 100) : 0;
     
-    // Calculate Visits
     let totalVisits = 0;
-    appUsers.forEach(u => {
+    filteredUsers.forEach(u => {
         totalVisits += (u.visits || 1);
     });
     const avgVisits = usersCount > 0 ? (totalVisits / usersCount).toFixed(1) : 0;
+    const activeCount = filteredUsers.filter(u => u.visits > 0).length;
 
-    // Update DOM KPIs
+    // Update KPIs on GUI
     document.getElementById("kpi-users-count").textContent = `${usersCount} 名`;
+    document.getElementById("kpi-active-count").textContent = activeCount;
     document.getElementById("kpi-avg-progress").textContent = `${avgProgress}%`;
     document.getElementById("kpi-progress-bar-inner").style.width = `${avgProgress}%`;
     document.getElementById("kpi-pass-rate").textContent = `${passRate}%`;
@@ -1391,19 +1676,20 @@ function updateAdminDashboard() {
     document.getElementById("kpi-avg-visits").textContent = `${avgVisits} 回`;
     document.getElementById("kpi-total-visits").textContent = totalVisits;
 
-    // Render Table Rows
+    // Render filtered student progress details table rows
     const tbody = document.getElementById("admin-table-body");
     tbody.innerHTML = "";
 
-    appUsers.forEach((u, index) => {
-        // Calculate progress percentage
+    filteredUsers.forEach((u) => {
+        // Retrieve global absolute index in original appUsers list
+        const index = appUsers.findIndex(usr => usr.loginId === u.loginId);
+        
         let completed = 0;
         for (let i = 1; i <= 4; i++) {
             if (u.progress[i] === 100) completed++;
         }
         const progPct = completed * 25;
 
-        // Test Status badge
         let testBadge = `<span class="badge-table untested">未受験</span>`;
         let scoreText = "-";
         
@@ -1415,12 +1701,10 @@ function updateAdminDashboard() {
             scoreText = `<span class="text-danger">${u.examScore}点</span>`;
         }
 
-        // Highlight current user
-        const isSelf = currentUser && currentUser.name === u.name && currentUser.company === u.company;
-        const rowClass = isSelf ? "style='background: rgba(16, 185, 129, 0.08); font-weight: 500;'" : "";
+        const isSelf = currentUser && currentUser.loginId === u.loginId;
 
         const tr = document.createElement("tr");
-        if (rowClass) tr.setAttribute("style", "background: rgba(16, 185, 129, 0.08); font-weight: 500;");
+        if (isSelf) tr.setAttribute("style", "background: rgba(16, 185, 129, 0.08); font-weight: 500;");
         
         tr.innerHTML = `
             <td>
@@ -1431,7 +1715,7 @@ function updateAdminDashboard() {
             </td>
             <td>${u.company}</td>
             <td>
-                <div class="flex-row gap-2 w-100">
+                <div class="flex-row gap-2 w-100 justify-center">
                     <div class="progress-bar-outer" style="width: 60px;">
                         <div class="progress-bar-inner" style="width: ${progPct}%"></div>
                     </div>
@@ -1443,7 +1727,10 @@ function updateAdminDashboard() {
             <td class="text-center" style="font-family: var(--font-outfit);">${scoreText}</td>
             <td class="text-muted text-xs">${u.lastActive || "-"}</td>
             <td>
-                <button class="btn-danger btn-xs" onclick="deleteAdminUser(${index})">削除</button>
+                <div class="flex-row gap-1">
+                    <button class="btn-primary btn-xs" onclick="openEditUserModal(${index})">編集</button>
+                    <button class="btn-danger btn-xs" onclick="deleteAdminUser(${index})">削除</button>
+                </div>
             </td>
         `;
         tbody.appendChild(tr);
@@ -1451,19 +1738,21 @@ function updateAdminDashboard() {
 }
 
 function deleteAdminUser(index) {
+    if (index === -1 || !appUsers[index]) return;
     if (confirm(`この受講ユーザー「${appUsers[index].name}」のデータを削除しますか？`)) {
-        // If deleting current logged-in user
         const target = appUsers[index];
-        if (currentUser && currentUser.name === target.name && currentUser.company === target.company) {
+        
+        // If deleting current logged-in user
+        if (currentUser && currentUser.loginId === target.loginId) {
             sessionStorage.removeItem("direct_current_user");
-            currentUser = { name: "", company: "", progress: {}, scores: {}, examPassed: false, examScore: 0, visits: 1, lastActive: "" };
+            currentUser = { loginId: "", password: "", name: "", company: "", progress: {}, scores: {}, examPassed: false, examScore: 0, visits: 1, lastActive: "" };
         }
         
         appUsers.splice(index, 1);
         localStorage.setItem("direct_elearning_users", JSON.stringify(appUsers));
         
         // Refresh
-        if (!currentUser.name) {
+        if (!currentUser.loginId) {
             initDatabase();
         } else {
             updateAdminDashboard();

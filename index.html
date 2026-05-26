@@ -21,9 +21,13 @@
                 <span class="logo-text">direct</span>
                 <span class="badge-elearning">e-Learning</span>
             </div>
-            <div class="header-actions">
-                <button id="btn-toggle-admin" class="btn-secondary flex-center gap-1">
-                    <i data-lucide="layout-dashboard"></i>
+            <div class="header-actions flex-row gap-2">
+                <button id="btn-logout" class="btn-secondary btn-sm flex-center gap-1 hidden">
+                    <i data-lucide="log-out" class="icon-xs"></i>
+                    <span class="btn-text">ログアウト</span>
+                </button>
+                <button id="btn-toggle-admin" class="btn-secondary btn-sm flex-center gap-1">
+                    <i data-lucide="layout-dashboard" class="icon-xs"></i>
                     <span class="btn-text">管理者画面</span>
                 </button>
             </div>
@@ -60,32 +64,53 @@
                 </div>
             </section>
 
-            <!-- Screen: Login/Register Name -->
+            <!-- Screen: Login/Register -->
             <section id="screen-login" class="app-screen">
                 <div class="login-content">
                     <button class="btn-back btn-icon-only" onclick="showScreen('screen-welcome')">
                         <i data-lucide="chevron-left"></i>
                     </button>
                     
-                    <div class="text-center mb-4">
-                        <div class="icon-circle bg-primary-soft mb-2">
-                            <i data-lucide="user"></i>
+                    <div class="text-center mb-3">
+                        <div class="logo-box" style="margin-top: 1rem; width: 56px; height: 56px; border-radius: 16px;">
+                            <i data-lucide="user" class="hero-icon" style="width: 24px; height: 24px;"></i>
                         </div>
-                        <h2>受講者登録</h2>
-                        <p class="text-muted">修了証書に記載するお名前を入力してください。</p>
+                        <h2 id="login-screen-title">受講者ログイン</h2>
+                        <p class="text-muted text-xs">学習データと修了証書を保存します。</p>
+                    </div>
+
+                    <!-- Tabs: Login vs Register -->
+                    <div class="login-tabs card-glass mb-3 flex-row justify-between" style="padding: 0.3rem; border-radius: var(--radius-md); background: #ffffff;">
+                        <button id="tab-login" class="btn-primary btn-sm w-48" style="padding: 0.4rem; box-shadow: none;">ログイン</button>
+                        <button id="tab-register" class="btn-secondary btn-sm w-48" style="padding: 0.4rem; border: none; box-shadow: none; background: transparent;">新規登録</button>
                     </div>
 
                     <div class="card-glass form-card">
+                        <!-- Login / Registration Common Fields -->
                         <div class="form-group">
-                            <label for="username">お名前（氏名）</label>
-                            <input type="text" id="username" placeholder="山田 太郎" required autocomplete="name">
+                            <label for="login-id">受講者ログインID</label>
+                            <input type="text" id="login-id" placeholder="yamada123" required>
                         </div>
                         <div class="form-group">
-                            <label for="usercompany">会社名・組織名</label>
-                            <input type="text" id="usercompany" placeholder="〇〇建設 株式会社" autocomplete="organization">
+                            <label for="login-pw">パスワード</label>
+                            <input type="password" id="login-pw" placeholder="••••••••" required>
                         </div>
+
+                        <!-- Registration ONLY Fields (Hidden on Login tab) -->
+                        <div id="register-fields" class="hidden" style="display: flex; flex-direction: column; gap: 1rem; width: 100%;">
+                            <div class="form-group">
+                                <label for="username">お名前（氏名）</label>
+                                <input type="text" id="username" placeholder="山田 太郎">
+                                <small class="text-muted text-xs">※修了証書に印刷されます。</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="usercompany">会社名・所属組織</label>
+                                <input type="text" id="usercompany" placeholder="〇〇建設 株式会社">
+                            </div>
+                        </div>
+
                         <button id="btn-submit-login" class="btn-primary w-100 mt-2">
-                            <span>ダッシュボードへ進む</span>
+                            <span>ログインする</span>
                         </button>
                     </div>
                 </div>
@@ -430,10 +455,10 @@
             <!-- Screen: Admin Dashboard (Tracker Panel) -->
             <section id="screen-admin" class="app-screen">
                 <div class="admin-content">
-                    <div class="admin-header mb-4">
+                    <div class="admin-header mb-3">
                         <div>
                             <h2>📈 学習状況管理ダッシュボード</h2>
-                            <p class="subtitle text-muted">全受講者の進捗率、利用頻度、テスト合格状況をリアルタイムで追跡できます。</p>
+                            <p class="subtitle text-muted">受講者の学習進捗、利用状況、テスト合否を組織別・個人別に集計・追跡できます。</p>
                         </div>
                         <div class="flex-center gap-2">
                             <button id="btn-admin-reset" class="btn-danger btn-sm flex-center gap-1">
@@ -447,22 +472,34 @@
                         </div>
                     </div>
 
+                    <!-- Filter Control Bar -->
+                    <div class="admin-filter-bar card-glass mb-4 flex-row justify-between items-center gap-3" style="padding: 0.75rem 1.25rem;">
+                        <div class="flex-row gap-2 items-center w-100">
+                            <label for="admin-org-filter" class="text-sm font-bold text-muted flex-row gap-1 items-center" style="white-space: nowrap;">
+                                <i data-lucide="filter" class="icon-inline text-success"></i>
+                                <span>組織別絞り込み:</span>
+                            </label>
+                            <select id="admin-org-filter" class="filter-select">
+                                <option value="all">すべての所属組織 (全体)</option>
+                            </select>
+                        </div>
+                    </div>
+
                     <!-- KPI Statistics Cards -->
                     <div class="kpi-grid mb-4">
                         <div class="kpi-card card-glass">
                             <span class="kpi-title text-muted">登録ユーザー数</span>
                             <div class="flex-row items-baseline gap-2">
                                 <h2 class="kpi-value" id="kpi-users-count">5 名</h2>
-                                <span class="trend-indicator text-success"><i data-lucide="trending-up" class="icon-inline"></i> +1</span>
+                                <span class="trend-indicator text-success" id="kpi-users-trend"><i data-lucide="trending-up" class="icon-inline"></i> +1</span>
                             </div>
                             <div class="kpi-footer text-muted">現在ログイン中: <span id="kpi-active-count">1</span>名</div>
                         </div>
 
                         <div class="kpi-card card-glass">
-                            <span class="kpi-title text-muted">平均進捗率</span>
+                            <span class="kpi-title text-muted">平均進捗率 / 利用率</span>
                             <div class="flex-row items-baseline gap-2">
                                 <h2 class="kpi-value" id="kpi-avg-progress">75%</h2>
-                                <span class="trend-indicator text-success"><i data-lucide="trending-up" class="icon-inline"></i> +4%</span>
                             </div>
                             <div class="kpi-progress-bar-outer">
                                 <div id="kpi-progress-bar-inner" class="kpi-progress-bar-inner" style="width: 75%"></div>
@@ -473,7 +510,7 @@
                             <span class="kpi-title text-muted">テスト合格率</span>
                             <div class="flex-row items-baseline gap-2">
                                 <h2 class="kpi-value" id="kpi-pass-rate">60%</h2>
-                                <span class="trend-indicator text-muted">3 / 5 合格</span>
+                                <span class="trend-indicator text-muted" id="kpi-pass-ratio">3 / 5 合格</span>
                             </div>
                             <div class="kpi-footer text-muted">不合格: <span id="kpi-fail-count">1</span>名 | 未受験: <span id="kpi-untested-count">1</span>名</div>
                         </div>
@@ -482,17 +519,41 @@
                             <span class="kpi-title text-muted">平均利用頻度</span>
                             <div class="flex-row items-baseline gap-2">
                                 <h2 class="kpi-value" id="kpi-avg-visits">8.4 回</h2>
-                                <span class="trend-indicator text-success"><i data-lucide="clock" class="icon-inline"></i> 活性度: 高</span>
+                                <span class="trend-indicator text-success"><i data-lucide="clock" class="icon-inline"></i> 活性度</span>
                             </div>
-                            <div class="kpi-footer text-muted">累計アクセス数: <span id="kpi-total-visits">42</span>回</div>
+                            <div class="kpi-footer text-muted">対象組織の総アクセス: <span id="kpi-total-visits">42</span>回</div>
                         </div>
                     </div>
 
-                    <!-- User Progress Table -->
+                    <!-- Table: Organization Grouped Statistics -->
+                    <div class="table-container card-glass mb-4">
+                        <div class="table-header">
+                            <h3>🏢 組織別集計データ</h3>
+                            <span class="text-xs text-muted">組織ごとの利用状況・テスト合格率</span>
+                        </div>
+                        <div class="table-wrapper">
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>組織・企業名</th>
+                                        <th class="text-center">受講人数</th>
+                                        <th class="text-center">平均進捗率</th>
+                                        <th class="text-center">テスト合格率</th>
+                                        <th class="text-center">総アクセス数</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="admin-org-table-body">
+                                    <!-- Injected dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Table: User Progress Details -->
                     <div class="table-container card-glass">
                         <div class="table-header">
                             <h3>👥 受講者詳細データ</h3>
-                            <span class="text-xs text-muted">※データはブラウザの localStorage と同期しています。</span>
+                            <span class="text-xs text-muted">個人ごとの進捗・テスト結果一覧</span>
                         </div>
                         <div class="table-wrapper">
                             <table class="admin-table">
@@ -500,10 +561,10 @@
                                     <tr>
                                         <th>受講者名</th>
                                         <th>所属組織</th>
-                                        <th>学習進捗</th>
-                                        <th>ログイン回数</th>
-                                        <th>テスト合否</th>
-                                        <th>テストスコア</th>
+                                        <th class="text-center">学習進捗</th>
+                                        <th class="text-center">ログイン回数</th>
+                                        <th class="text-center">テスト合否</th>
+                                        <th class="text-center">テストスコア</th>
                                         <th>最終学習日時</th>
                                         <th>操作</th>
                                     </tr>
@@ -517,6 +578,59 @@
                 </div>
             </section>
         </main>
+    </div>
+
+    <!-- Modals Section -->
+    
+    <!-- Modal: Admin Authentication -->
+    <div id="modal-admin-login" class="modal-overlay hidden">
+        <div class="modal-content card-glass">
+            <div class="modal-header justify-between">
+                <h3>🔒 管理者ログイン認証</h3>
+                <button class="btn-icon-only flex-center" onclick="closeAdminModal()" style="width:32px; height:32px;">
+                    <i data-lucide="x" class="icon-xs"></i>
+                </button>
+            </div>
+            <div class="modal-body mt-3">
+                <p class="text-xs text-muted mb-3" style="line-height:1.4;">
+                    管理ダッシュボードを表示するにはログインが必要です。<br>
+                    <span style="color: var(--color-accent); font-weight:700;">🔑 デモ用ID: <code style="background:#f1f5f9; padding:2px 4px; border-radius:3px;">admin</code> / PW: <code style="background:#f1f5f9; padding:2px 4px; border-radius:3px;">direct123</code></span>
+                </p>
+                <div class="form-group mb-3">
+                    <label for="admin-id">管理者ID</label>
+                    <input type="text" id="admin-id" placeholder="admin" required>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="admin-pw">パスワード</label>
+                    <input type="password" id="admin-pw" placeholder="••••••••" required>
+                </div>
+                <button id="btn-submit-admin-login" class="btn-primary w-100 mt-3">管理者ダッシュボードを開く</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Edit User Details -->
+    <div id="modal-edit-user" class="modal-overlay hidden">
+        <div class="modal-content card-glass">
+            <div class="modal-header justify-between">
+                <h3>✏️ 受講生情報の編集</h3>
+                <button class="btn-icon-only flex-center" onclick="closeEditUserModal()" style="width:32px; height:32px;">
+                    <i data-lucide="x" class="icon-xs"></i>
+                </button>
+            </div>
+            <div class="modal-body mt-3">
+                <input type="hidden" id="edit-user-index">
+                <div class="form-group mb-3">
+                    <label for="edit-username">受講者お名前（氏名）</label>
+                    <input type="text" id="edit-username" placeholder="山田 太郎" required>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="edit-usercompany">所属組織（会社名）</label>
+                    <input type="text" id="edit-usercompany" placeholder="〇〇建設 株式会社" required>
+                </div>
+                <button id="btn-save-user-edit" class="btn-primary w-100 mt-3">変更内容を保存する</button>
+            </div>
+        </div>
     </div>
 
     <!-- Scripts -->
