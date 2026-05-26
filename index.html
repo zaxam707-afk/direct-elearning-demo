@@ -10,7 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;900&family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    <link rel="stylesheet" href="style.css?v=2.0">
+    <link rel="stylesheet" href="style.css?v=2.1">
 </head>
 <body>
     <!-- App Outer Layout -->
@@ -525,34 +525,10 @@
                         </div>
                     </div>
 
-                    <!-- Table: Organization Grouped Statistics -->
+                    <!-- Table: User Progress Details -->
                     <div class="table-container card-glass mb-4">
                         <div class="table-header">
-                            <h3>🏢 組織別集計データ</h3>
-                            <span class="text-xs text-muted">組織ごとの利用状況・テスト合格率</span>
-                        </div>
-                        <div class="table-wrapper">
-                            <table class="admin-table">
-                                <thead>
-                                    <tr>
-                                        <th>組織・企業名</th>
-                                        <th class="text-center">受講人数</th>
-                                        <th class="text-center">平均進捗率</th>
-                                        <th class="text-center">テスト合格率</th>
-                                        <th class="text-center">総アクセス数</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="admin-org-table-body">
-                                    <!-- Injected dynamically -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <!-- Table: User Progress Details -->
-                    <div class="table-container card-glass">
-                        <div class="table-header">
-                            <h3>👥 受講者詳細データ</h3>
+                            <h3 id="admin-user-table-title">👥 受講者詳細データ</h3>
                             <span class="text-xs text-muted">個人ごとの進捗・テスト結果一覧</span>
                         </div>
                         <div class="table-wrapper">
@@ -570,6 +546,30 @@
                                     </tr>
                                 </thead>
                                 <tbody id="admin-table-body">
+                                    <!-- Injected dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Table: Organization Grouped Statistics -->
+                    <div class="table-container card-glass">
+                        <div class="table-header">
+                            <h3 id="admin-org-table-title">🏢 組織別集計データ</h3>
+                            <span class="text-xs text-muted">組織ごとの利用状況・テスト合格率</span>
+                        </div>
+                        <div class="table-wrapper">
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>組織・企業名</th>
+                                        <th class="text-center">受講人数</th>
+                                        <th class="text-center">平均進捗率</th>
+                                        <th class="text-center">テスト合格率</th>
+                                        <th class="text-center">総アクセス数</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="admin-org-table-body">
                                     <!-- Injected dynamically -->
                                 </tbody>
                             </table>
@@ -593,8 +593,7 @@
             </div>
             <div class="modal-body mt-3">
                 <p class="text-xs text-muted mb-3" style="line-height:1.4;">
-                    管理ダッシュボードを表示するにはログインが必要です。<br>
-                    <span style="color: var(--color-accent); font-weight:700;">🔑 デモ用ID: <code style="background:#f1f5f9; padding:2px 4px; border-radius:3px;">admin</code> / PW: <code style="background:#f1f5f9; padding:2px 4px; border-radius:3px;">direct123</code></span>
+                    管理ダッシュボードを表示するにはログインが必要です。
                 </p>
                 <div class="form-group mb-3">
                     <label for="admin-id">管理者ID</label>
@@ -634,6 +633,6 @@
     </div>
 
     <!-- Scripts -->
-    <script src="app.js?v=2.0"></script>
+    <script src="app.js?v=2.1"></script>
 </body>
 </html>

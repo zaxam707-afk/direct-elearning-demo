@@ -1624,6 +1624,17 @@ function updateAdminDashboard() {
     
     const filterOrg = document.getElementById("admin-org-filter").value;
     
+    // Update table titles dynamically based on filter selection
+    const userTableTitle = document.getElementById("admin-user-table-title");
+    const orgTableTitle = document.getElementById("admin-org-table-title");
+    if (filterOrg === "all") {
+        if (userTableTitle) userTableTitle.textContent = "👥 受講者詳細データ";
+        if (orgTableTitle) orgTableTitle.textContent = "🏢 組織別集計データ";
+    } else {
+        if (userTableTitle) userTableTitle.textContent = `👥 ${filterOrg} 詳細データ`;
+        if (orgTableTitle) orgTableTitle.textContent = `🏢 ${filterOrg} 集計データ`;
+    }
+    
     // Filter users list based on selection
     let filteredUsers = appUsers;
     if (filterOrg !== "all") {
