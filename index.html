@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>direct 建設現場活用 eラーニングデモ</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;900&family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- App Outer Layout -->
+    <div class="app-layout">
+        <!-- Top Navigation Header -->
+        <header class="app-header">
+            <div class="header-logo">
+                <span class="logo-text">direct</span>
+                <span class="badge-elearning">e-Learning</span>
+            </div>
+            <div class="header-actions">
+                <button id="btn-toggle-admin" class="btn-secondary flex-center gap-1">
+                    <i data-lucide="layout-dashboard"></i>
+                    <span class="btn-text">管理者画面</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="app-main">
+            <!-- Screen: Welcome -->
+            <section id="screen-welcome" class="app-screen active">
+                <div class="welcome-content text-center">
+                    <div class="brand-hero">
+                        <div class="logo-box">
+                            <i data-lucide="book-open" class="hero-icon"></i>
+                        </div>
+                        <h1>direct 建設現場活用<br><span class="highlight">eラーニングデモ</span></h1>
+                        <p class="subtitle">現場の課題を解決するビジネスチャット「direct」の強みと活用方法を、スマホで体験しながら学びましょう！</p>
+                    </div>
+
+                    <div class="card-glass intro-card text-left">
+                        <h3>💡 学べる内容</h3>
+                        <ul>
+                            <li><i data-lucide="check" class="text-success"></i> 現場特化ビジネスチャットの基本機能</li>
+                            <li><i data-lucide="check" class="text-success"></i> ゲストモード（特許）と現場ごとのグループ管理</li>
+                            <li><i data-lucide="check" class="text-success"></i> チャットボットによる写真報告書・勤怠作成の自動化</li>
+                            <li><i data-lucide="check" class="text-success"></i> AIアシスタントによる現場指示の要約と画像解析</li>
+                            <li><i data-lucide="check" class="text-success"></i> 他社建設DXツール・気象センサーとのリアルタイム連携</li>
+                        </ul>
+                    </div>
+
+                    <button id="btn-start-course" class="btn-primary btn-large flex-center gap-2 w-100">
+                        <span>学習を始める</span>
+                        <i data-lucide="arrow-right"></i>
+                    </button>
+                </div>
+            </section>
+
+            <!-- Screen: Login/Register Name -->
+            <section id="screen-login" class="app-screen">
+                <div class="login-content">
+                    <button class="btn-back btn-icon-only" onclick="showScreen('screen-welcome')">
+                        <i data-lucide="chevron-left"></i>
+                    </button>
+                    
+                    <div class="text-center mb-4">
+                        <div class="icon-circle bg-primary-soft mb-2">
+                            <i data-lucide="user"></i>
+                        </div>
+                        <h2>受講者登録</h2>
+                        <p class="text-muted">修了証書に記載するお名前を入力してください。</p>
+                    </div>
+
+                    <div class="card-glass form-card">
+                        <div class="form-group">
+                            <label for="username">お名前（氏名）</label>
+                            <input type="text" id="username" placeholder="山田 太郎" required autocomplete="name">
+                        </div>
+                        <div class="form-group">
+                            <label for="usercompany">会社名・組織名</label>
+                            <input type="text" id="usercompany" placeholder="〇〇建設 株式会社" autocomplete="organization">
+                        </div>
+                        <button id="btn-submit-login" class="btn-primary w-100 mt-2">
+                            <span>ダッシュボードへ進む</span>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Screen: Student Dashboard -->
+            <section id="screen-dashboard" class="app-screen">
+                <div class="dashboard-content">
+                    <!-- User Status Summary -->
+                    <div class="user-summary card-glass mb-4">
+                        <div class="user-info">
+                            <div class="avatar">
+                                <span id="user-initials">山</span>
+                            </div>
+                            <div>
+                                <h4 id="display-user-name">山田 太郎 様</h4>
+                                <p id="display-user-company" class="text-muted">〇〇建設 株式会社</p>
+                            </div>
+                        </div>
+                        <div class="progress-section">
+                            <div class="progress-header">
+                                <span>学習進捗率</span>
+                                <span id="progress-percentage">0%</span>
+                            </div>
+                            <div class="progress-bar-outer">
+                                <div id="progress-bar-inner" class="progress-bar-inner" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Module Cards List -->
+                    <h3 class="section-title">📚 学習カリキュラム</h3>
+                    <div class="modules-grid mb-4">
+                        <!-- Chapter 1 -->
+                        <div class="module-card card-glass" data-module="1">
+                            <div class="module-header">
+                                <span class="chapter-badge">第 1 章</span>
+                                <span class="status-badge" id="module-status-1">未着手</span>
+                            </div>
+                            <h4>現場向けチャット「direct」の特徴</h4>
+                            <p class="module-desc">現場特化デザイン、ゲストモード、現場ごとのグループ管理などの基礎を学びます。</p>
+                            <div class="module-footer">
+                                <button class="btn-start-module btn-secondary btn-sm" onclick="startModule(1)">学習する</button>
+                            </div>
+                        </div>
+
+                        <!-- Chapter 2 -->
+                        <div class="module-card card-glass" data-module="2">
+                            <div class="module-header">
+                                <span class="chapter-badge">第 2 章</span>
+                                <span class="status-badge" id="module-status-2">未着手</span>
+                            </div>
+                            <h4>タスク管理とチャットボット</h4>
+                            <p class="module-desc">会話から登録するタスク機能や、現場での写真報告書・GPS勤怠ボットを学びます。</p>
+                            <div class="module-footer">
+                                <button class="btn-start-module btn-secondary btn-sm" onclick="startModule(2)">学習する</button>
+                            </div>
+                        </div>
+
+                        <!-- Chapter 3 -->
+                        <div class="module-card card-glass" data-module="3">
+                            <div class="module-header">
+                                <span class="chapter-badge">第 3 章</span>
+                                <span class="status-badge" id="module-status-3">未着手</span>
+                            </div>
+                            <h4>現場AI「directアシスタント」</h4>
+                            <p class="module-desc">日々のやり取りの要約、過去ログの検索、写真（画像）の自動解析などのAI支援を学びます。</p>
+                            <div class="module-footer">
+                                <button class="btn-start-module btn-secondary btn-sm" onclick="startModule(3)">学習する</button>
+                            </div>
+                        </div>
+
+                        <!-- Chapter 4 -->
+                        <div class="module-card card-glass" data-module="4">
+                            <div class="module-header">
+                                <span class="chapter-badge">第 4 章</span>
+                                <span class="status-badge" id="module-status-4">未着手</span>
+                            </div>
+                            <h4>他社アプリ連携とDXエコシステム</h4>
+                            <p class="module-desc">eYACHO、SPIDERPLUS、気象アラート、熱中症対策AIカメラなどの連携システムを学びます。</p>
+                            <div class="module-footer">
+                                <button class="btn-start-module btn-secondary btn-sm" onclick="startModule(4)">学習する</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Simulator Cards List -->
+                    <h3 class="section-title">🕹️ インタラクティブ体験シミュレータ</h3>
+                    <div class="simulators-grid mb-4">
+                        <div class="sim-card card-glass flex-row">
+                            <div class="sim-icon">
+                                <i data-lucide="message-square"></i>
+                            </div>
+                            <div class="sim-info">
+                                <h4>写真報告書ボット体験</h4>
+                                <p>directのチャット上でボットに答えるだけで報告書ができるワークフローを疑似体験します。</p>
+                                <button class="btn-primary btn-sm flex-center gap-1 mt-1" onclick="startSimulator('bot')">
+                                    <span>シミュレータ起動</span>
+                                    <i data-lucide="play" class="icon-xs"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="sim-card card-glass flex-row">
+                            <div class="sim-icon">
+                                <i data-lucide="kanban"></i>
+                            </div>
+                            <div class="sim-info">
+                                <h4>仕上げ検査・是正指示ボード</h4>
+                                <p>仕上げ検査での是正指示から完了までの4つのフェーズ移行をカンバンボードで体験します。</p>
+                                <button class="btn-primary btn-sm flex-center gap-1 mt-1" onclick="startSimulator('task')">
+                                    <span>シミュレータ起動</span>
+                                    <i data-lucide="play" class="icon-xs"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Certification Section -->
+                    <div class="cert-card-dashboard card-glass text-center p-4" id="cert-lock-card">
+                        <div class="cert-icon-lock mb-2">
+                            <i data-lucide="lock" class="icon-lg text-muted" id="cert-lock-icon"></i>
+                        </div>
+                        <h3>🏆 direct 現場DX認定テスト</h3>
+                        <p class="text-muted mb-3" id="cert-lock-text">全4チャプターを学習完了すると、認定テストに挑戦でき、合格すると修了証書が発行されます。</p>
+                        <button id="btn-start-exam" class="btn-primary w-100 disabled" disabled>
+                            <span>認定テストを開始する</span>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Screen: Slide Viewer -->
+            <section id="screen-slide-viewer" class="app-screen">
+                <div class="slide-viewer-content">
+                    <div class="viewer-header">
+                        <button class="btn-back btn-icon-only" onclick="exitSlideViewer()">
+                            <i data-lucide="chevron-left"></i>
+                        </button>
+                        <div class="header-title">
+                            <span class="slide-chapter-label">第 1 章</span>
+                            <h4 id="slide-chapter-title">directの特徴</h4>
+                        </div>
+                        <div class="slide-counter"><span id="current-slide-num">1</span> / <span id="total-slide-num">4</span></div>
+                    </div>
+
+                    <!-- Slide Progress -->
+                    <div class="slide-progress-bar-outer">
+                        <div id="slide-progress-bar-inner" class="slide-progress-bar-inner" style="width: 25%"></div>
+                    </div>
+
+                    <!-- Main Slide Box -->
+                    <div class="slide-box card-glass">
+                        <div id="slide-body-content" class="slide-body">
+                            <!-- Injected dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Viewer Footer Controls -->
+                    <div class="viewer-footer">
+                        <button id="btn-prev-slide" class="btn-secondary w-45">前へ</button>
+                        <button id="btn-next-slide" class="btn-primary w-45">次へ</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Screen: Quiz Interface -->
+            <section id="screen-quiz" class="app-screen">
+                <div class="quiz-content">
+                    <div class="quiz-header">
+                        <span class="badge-quiz">理解度クイズ</span>
+                        <div class="quiz-progress-label">問題 <span id="current-quiz-num">1</span> / <span id="total-quiz-num">3</span></div>
+                    </div>
+                    <div class="quiz-progress-bar">
+                        <div id="quiz-progress-inner" class="quiz-progress-inner" style="width: 33%"></div>
+                    </div>
+
+                    <!-- Question Card -->
+                    <div class="quiz-card card-glass mt-3">
+                        <p id="quiz-question-text" class="question-text">読み込み中...</p>
+                    </div>
+
+                    <!-- Options Container -->
+                    <div id="quiz-options-container" class="options-container mt-4">
+                        <!-- Injected dynamically -->
+                    </div>
+
+                    <!-- Feedback Panel -->
+                    <div id="quiz-feedback-panel" class="feedback-panel card-glass mt-4 hidden">
+                        <div class="feedback-header">
+                            <span id="feedback-result-icon"></span>
+                            <h4 id="feedback-result-text">正解！</h4>
+                        </div>
+                        <p id="feedback-explanation" class="feedback-explanation">解説文がここに入ります。</p>
+                        <button id="btn-next-quiz" class="btn-primary w-100 mt-3">次へ進む</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Screen: Chatbot Simulator -->
+            <section id="screen-simulator-bot" class="app-screen">
+                <div class="sim-bot-content">
+                    <div class="sim-header">
+                        <button class="btn-back btn-icon-only" onclick="showScreen('screen-dashboard')">
+                            <i data-lucide="chevron-left"></i>
+                        </button>
+                        <div class="sim-bot-profile">
+                            <div class="bot-avatar">
+                                <i data-lucide="bot"></i>
+                            </div>
+                            <div>
+                                <h4>写真報告書ボット for 現場</h4>
+                                <span class="status-online">● オンライン</span>
+                            </div>
+                        </div>
+                        <button class="btn-secondary btn-xs" onclick="resetBotSimulator()">やり直す</button>
+                    </div>
+
+                    <!-- Chat Message Area -->
+                    <div id="chat-messages-container" class="chat-messages-container">
+                        <!-- Dynamically filled with message balloons -->
+                    </div>
+
+                    <!-- User Response Options Input Area -->
+                    <div id="chat-inputs-container" class="chat-inputs-container">
+                        <!-- Display multi-choice buttons for simulated answers -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Screen: Kanban Task Simulator -->
+            <section id="screen-simulator-task" class="app-screen">
+                <div class="sim-task-content">
+                    <div class="sim-header">
+                        <button class="btn-back btn-icon-only" onclick="showScreen('screen-dashboard')">
+                            <i data-lucide="chevron-left"></i>
+                        </button>
+                        <div>
+                            <h4>是正指示・仕上げ検査タスク</h4>
+                            <p class="subtitle-sm">タップしてタスクの状態を進めましょう</p>
+                        </div>
+                        <button class="btn-secondary btn-xs" onclick="resetTaskSimulator()">リセット</button>
+                    </div>
+
+                    <!-- Kanban Board -->
+                    <div class="kanban-board mt-3">
+                        <!-- Column: 未対応 -->
+                        <div class="kanban-column" id="col-todo">
+                            <div class="column-header">
+                                <span class="dot dot-todo"></span>
+                                <h5>未対応 (<span class="col-count" id="count-todo">0</span>)</h5>
+                            </div>
+                            <div class="kanban-cards-area" id="cards-todo"></div>
+                        </div>
+
+                        <!-- Column: 対応中 -->
+                        <div class="kanban-column" id="col-doing">
+                            <div class="column-header">
+                                <span class="dot dot-doing"></span>
+                                <h5>対応中 (<span class="col-count" id="count-doing">0</span>)</h5>
+                            </div>
+                            <div class="kanban-cards-area" id="cards-doing"></div>
+                        </div>
+
+                        <!-- Column: 対応済 -->
+                        <div class="kanban-column" id="col-done">
+                            <div class="column-header">
+                                <span class="dot dot-done"></span>
+                                <h5>対応済 (<span class="col-count" id="count-done">0</span>)</h5>
+                            </div>
+                            <div class="kanban-cards-area" id="cards-done"></div>
+                        </div>
+
+                        <!-- Column: 完了 -->
+                        <div class="kanban-column" id="col-completed">
+                            <div class="column-header">
+                                <span class="dot dot-completed"></span>
+                                <h5>完了 (<span class="col-count" id="count-completed">0</span>)</h5>
+                            </div>
+                            <div class="kanban-cards-area" id="cards-completed"></div>
+                        </div>
+                    </div>
+
+                    <!-- Simulation Instructions Info -->
+                    <div class="card-glass instruction-card mt-3">
+                        <p class="text-sm"><i data-lucide="info" class="icon-inline"></i> 仕上げ検査中に見つかった壁紙のキズを、協力会社へ是正依頼しました。タスクカードをタップして「対応中（補修工事開始）」➔「対応済（工事終了報告）」➔「完了（元請の確認・受領）」とフェーズを進めてください。すべてのタスクが「完了」になるとシミュレーション完了です。</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Screen: Certificate of Completion -->
+            <section id="screen-certificate" class="app-screen">
+                <div class="certificate-content text-center">
+                    <div class="confetti-container" id="confetti-holder"></div>
+                    
+                    <div class="cert-badge-hero mb-3">
+                        <i data-lucide="award" class="icon-xl text-gold animate-bounce"></i>
+                    </div>
+                    
+                    <h2 class="animate-fade-in">合格おめでとうございます！</h2>
+                    <p class="text-muted">「direct 現場DX認定テスト」に合格しました。</p>
+
+                    <!-- The Actual Certificate Frame -->
+                    <div class="certificate-frame mt-4" id="certificate-print-area">
+                        <div class="cert-border-outer">
+                            <div class="cert-border-inner">
+                                <div class="cert-header-gold">
+                                    <span class="gold-line"></span>
+                                    <h3>修 了 証 書</h3>
+                                    <span class="gold-line"></span>
+                                </div>
+                                <div class="cert-recipient-section mt-4">
+                                    <p class="cert-company-text" id="cert-company">〇〇建設 株式会社</p>
+                                    <h2 class="cert-name-text" id="cert-name">山田 太郎 殿</h2>
+                                </div>
+                                <div class="cert-body-text mt-3">
+                                    貴殿は、ビジネスチャット「direct」を用いた建設現場のDX化、安全管理、及び他社ツール連携に関する学習課程「direct 現場DXエキスパート養成プログラム」を修了し、認定テストにおいて優秀な成績で合格されたことを証します。
+                                </div>
+                                <div class="cert-date-section mt-4">
+                                    <p class="cert-date" id="cert-date">2026年 5月 26日</p>
+                                    <p class="cert-issuer">株式会社 エルイズビー<br>direct e-Learning 認定委員会</p>
+                                </div>
+                                <div class="cert-seal">
+                                    <span class="seal-icon">印</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex-center gap-3 mt-4 w-100">
+                        <button class="btn-secondary w-50 flex-center gap-1" onclick="printCertificate()">
+                            <i data-lucide="printer"></i>
+                            <span>印刷・PDF保存</span>
+                        </button>
+                        <button class="btn-primary w-50" onclick="showScreen('screen-dashboard')">
+                            <span>ダッシュボードに戻る</span>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Screen: Admin Dashboard (Tracker Panel) -->
+            <section id="screen-admin" class="app-screen">
+                <div class="admin-content">
+                    <div class="admin-header mb-4">
+                        <div>
+                            <h2>📈 学習状況管理ダッシュボード</h2>
+                            <p class="subtitle text-muted">全受講者の進捗率、利用頻度、テスト合格状況をリアルタイムで追跡できます。</p>
+                        </div>
+                        <div class="flex-center gap-2">
+                            <button id="btn-admin-reset" class="btn-danger btn-sm flex-center gap-1">
+                                <i data-lucide="rotate-ccw"></i>
+                                <span>データ初期化</span>
+                            </button>
+                            <button id="btn-admin-add-user" class="btn-secondary btn-sm flex-center gap-1">
+                                <i data-lucide="user-plus"></i>
+                                <span>デモユーザー追加</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- KPI Statistics Cards -->
+                    <div class="kpi-grid mb-4">
+                        <div class="kpi-card card-glass">
+                            <span class="kpi-title text-muted">登録ユーザー数</span>
+                            <div class="flex-row items-baseline gap-2">
+                                <h2 class="kpi-value" id="kpi-users-count">5 名</h2>
+                                <span class="trend-indicator text-success"><i data-lucide="trending-up" class="icon-inline"></i> +1</span>
+                            </div>
+                            <div class="kpi-footer text-muted">現在ログイン中: <span id="kpi-active-count">1</span>名</div>
+                        </div>
+
+                        <div class="kpi-card card-glass">
+                            <span class="kpi-title text-muted">平均進捗率</span>
+                            <div class="flex-row items-baseline gap-2">
+                                <h2 class="kpi-value" id="kpi-avg-progress">75%</h2>
+                                <span class="trend-indicator text-success"><i data-lucide="trending-up" class="icon-inline"></i> +4%</span>
+                            </div>
+                            <div class="kpi-progress-bar-outer">
+                                <div id="kpi-progress-bar-inner" class="kpi-progress-bar-inner" style="width: 75%"></div>
+                            </div>
+                        </div>
+
+                        <div class="kpi-card card-glass">
+                            <span class="kpi-title text-muted">テスト合格率</span>
+                            <div class="flex-row items-baseline gap-2">
+                                <h2 class="kpi-value" id="kpi-pass-rate">60%</h2>
+                                <span class="trend-indicator text-muted">3 / 5 合格</span>
+                            </div>
+                            <div class="kpi-footer text-muted">不合格: <span id="kpi-fail-count">1</span>名 | 未受験: <span id="kpi-untested-count">1</span>名</div>
+                        </div>
+
+                        <div class="kpi-card card-glass">
+                            <span class="kpi-title text-muted">平均利用頻度</span>
+                            <div class="flex-row items-baseline gap-2">
+                                <h2 class="kpi-value" id="kpi-avg-visits">8.4 回</h2>
+                                <span class="trend-indicator text-success"><i data-lucide="clock" class="icon-inline"></i> 活性度: 高</span>
+                            </div>
+                            <div class="kpi-footer text-muted">累計アクセス数: <span id="kpi-total-visits">42</span>回</div>
+                        </div>
+                    </div>
+
+                    <!-- User Progress Table -->
+                    <div class="table-container card-glass">
+                        <div class="table-header">
+                            <h3>👥 受講者詳細データ</h3>
+                            <span class="text-xs text-muted">※データはブラウザの localStorage と同期しています。</span>
+                        </div>
+                        <div class="table-wrapper">
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>受講者名</th>
+                                        <th>所属組織</th>
+                                        <th>学習進捗</th>
+                                        <th>ログイン回数</th>
+                                        <th>テスト合否</th>
+                                        <th>テストスコア</th>
+                                        <th>最終学習日時</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="admin-table-body">
+                                    <!-- Injected dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="app.js"></script>
+</body>
+</html>
