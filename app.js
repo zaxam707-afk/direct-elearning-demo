@@ -1627,12 +1627,14 @@ function updateAdminDashboard() {
     // Update table titles dynamically based on filter selection
     const userTableTitle = document.getElementById("admin-user-table-title");
     const orgTableTitle = document.getElementById("admin-org-table-title");
+    
+    // 下の集計タイトルは常に「全グループ集計データ」にする
+    if (orgTableTitle) orgTableTitle.textContent = "🏢 全グループ集計データ";
+    
     if (filterOrg === "all") {
         if (userTableTitle) userTableTitle.textContent = "👥 受講者詳細データ";
-        if (orgTableTitle) orgTableTitle.textContent = "🏢 組織別集計データ";
     } else {
         if (userTableTitle) userTableTitle.textContent = `👥 ${filterOrg} 詳細データ`;
-        if (orgTableTitle) orgTableTitle.textContent = `🏢 ${filterOrg} 集計データ`;
     }
     
     // Filter users list based on selection
